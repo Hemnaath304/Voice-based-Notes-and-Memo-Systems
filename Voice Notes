@@ -1,0 +1,59 @@
+!pipinstallSpeechRecognitionpandas
+!pipinstallpandaspyttsx3
+!apt-getinstall-yportaudio19-dev
+!pipinstallpyaudiopip install pipwin
+fromgoogle.colabimportfiles
+print("Upload yourZIPfilecontaining.wavfiles:") uploaded = files.upload()
+import osimportzipfile
+
+extract_folder = "extracted_audio" os.makedirs(extract_folder, exist_ok=True)
+
+forzip_filenameinuploaded.keys():
+ifzip_filename.endswith('.zip'):
+withzipfile.ZipFile(zip_filename, 'r') aszip_ref: zip_ref.extractall(extract_folder)
+print(f"Extracted ZIPfileto folder: {extract_folder}") else:
+print(f"❌{zip_filename}isnotaZIPfile.")
+
+
+print("Files extracted:") print(os.listdir(extract_folder)) import os
+importzipfile
+from google.colab import files importspeech_recognitionassr
+
+#Step1:Upload and unzip
+uploaded=files.upload()#Uploadazipwith.wavfiles zip_file_name = list(uploaded.keys())[0]
+
+extract_path="Notes"
+
+
+withzipfile.ZipFile(zip_file_name, 'r') aszip_ref: zip_ref.extractall(extract_path)
+
+print(f"\n✅Extractedto'{extract_path}'")
+#Step2:Findall.wavfilesinallsubfolderswav_files = []
+forroot,dirs, files_in_dir inos.walk(extract_path): for file in files_in_dir:
+if file.lower().endswith(".wav"): wav_files.append(os.path.join(root, file))
+
+ifnotwav_files:
+print("❌No.wavfilesfound.CheckyourZIPstructure.") else:
+print("🎧Foundthefollowing .wavfiles:") for wf in wav_files:
+print("-",wf)
+
+
+#Step3:Recognizeandwritetooutputfile recognizer = sr.Recognizer()
+output_file="Notes_output.txt"
+
+
+withopen(output_file, "w",encoding="utf-8")asf: for wav_path in wav_files:
+filename = os.path.basename(wav_path) print(f"\n🎧Processing {filename}...") try:
+with sr.AudioFile(wav_path) as source: audio_data=recognizer.record(source)
+command=recognizer.recognize_google(audio_data) print(f"✅ Recognized: {command}") f.write(f"{filename}: {command}\n")
+
+
+exceptsr.UnknownValueError:
+print(f"⚠Couldnotunderstandaudioin{filename}.") f.write(f"{filename}:Couldnotunderstandaudio.\n")
+
+
+exceptsr.RequestErrorase:
+print(f"❌APIerrorfor{filename}:{e}") f.write(f"{filename}: API error - {e}\n")
+
+
+print(f"\n🎧Allrecognizedcommandssavedto'{output_file}'")
